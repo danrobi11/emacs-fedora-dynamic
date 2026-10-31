@@ -1,2 +1,2 @@
 # emacs-fedora-dynamic
-emacs-fedora-dynamic
+Unofficial emacs fedora dynamic binary
