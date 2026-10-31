@@ -63,12 +63,6 @@ jobs:
           make bootstrap -j$(nproc)
           make -j$(nproc)
           
-      - name: Show libxml2
-        run: |
-          rpm -q libxml2
-          ldconfig -p | grep libxml2 || true
-          ls -l /usr/lib64/libxml2.so* || true
-          
           # Create version-specific libexec directory and dump the portable file
           mkdir -p $HOME/.local/libexec/emacs/$EMACS_VERSION/x86_64-pc-linux-gnu
           src/temacs -Q --batch --eval "(dump-emacs-portable \"$HOME/.local/libexec/emacs/$EMACS_VERSION/x86_64-pc-linux-gnu/emacs.pdmp\")"
