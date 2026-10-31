@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: fedora:latest
+      image: fedora:45
 
     steps:
       - uses: actions/checkout@v6
@@ -62,10 +62,13 @@ jobs:
             CFLAGS="-O2 -g -fno-omit-frame-pointer"
           make bootstrap -j$(nproc)
           make -j$(nproc)
-            
-          # Automatically detect the Emacs version (e.g., 31.0.50)
-          EMACS_VERSION=$(src/emacs --version | head -1 | awk '{print $NF}')
-
+          
+      - name: Show libxml2
+        run: |
+          rpm -q libxml2
+          ldconfig -p | grep libxml2 || true
+          ls -l /usr/lib64/libxml2.so* || true
+          
           # Create version-specific libexec directory and dump the portable file
           mkdir -p $HOME/.local/libexec/emacs/$EMACS_VERSION/x86_64-pc-linux-gnu
           src/temacs -Q --batch --eval "(dump-emacs-portable \"$HOME/.local/libexec/emacs/$EMACS_VERSION/x86_64-pc-linux-gnu/emacs.pdmp\")"
@@ -75,8 +78,15 @@ jobs:
       - name: Verify the built binary
         run: |
           $HOME/.local/bin/emacs --version
-          file $HOME/.local/bin/emacs
-          ldd $HOME/.local/bin/emacs
+          echo "=== NEEDED libraries ==="
+          readelf -d $HOME/.local/bin/emacs | grep NEEDED
+          echo "=== libxml2 linkage ==="
+          ldd $HOME/.local/bin/emacs | grep -i xml || true
+          # fail the job if it still wants the old soname
+          if readelf -d $HOME/.local/bin/emacs | grep -q 'libxml2.so.2'; then
+            echo "ERROR: binary linked against old libxml2.so.2" >&2
+            exit 1
+          fi
 
       - name: Prepare artifact directory
         run: |
