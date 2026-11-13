@@ -47,6 +47,7 @@ jobs:
             --without-x-toolkit \
             --with-x-toolkit=no \
             --without-gsettings \
+            --without-gpm \
             --without-dbus \
             --without-gconf \
             --without-selinux \
