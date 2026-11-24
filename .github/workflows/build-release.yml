@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: fedora:45
+      image: fedora:rawhide
 
     steps:
       - uses: actions/checkout@v6
